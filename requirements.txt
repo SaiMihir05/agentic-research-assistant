@@ -14,3 +14,4 @@ langgraph
 qdrant-client
 redis
 sse-starlette<1.3.3
+greenlet

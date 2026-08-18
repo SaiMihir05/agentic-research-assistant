@@ -28,8 +28,8 @@ class ResearchState(TypedDict):
 # Helper to configure and call Gemini API with retry/backoff on rate limits
 @retry(
     retry=retry_if_exception_type(ClientError),
-    wait=wait_exponential(multiplier=1, min=5, max=60),
-    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=2, min=10, max=120),
+    stop=stop_after_attempt(8),
     reraise=True,
 )
 def _call_gemini_sync(prompt: str) -> str:
@@ -124,8 +124,11 @@ async def research_subtopics(state: ResearchState) -> Dict[str, Any]:
         logger.info(f"Completed research on: {subtopic}")
         return {"subtopic": subtopic, "content": response}
 
-    tasks = [research_one(subtopic) for subtopic in plan]
-    findings = await asyncio.gather(*tasks)
+    # Run sequentially to avoid hitting Gemini Free Tier 15 RPM limits
+    findings = []
+    for subtopic in plan:
+        findings.append(await research_one(subtopic))
+    
     return {"findings": findings}
 
 # Node 3: Synthesis Node

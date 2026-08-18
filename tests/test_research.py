@@ -25,7 +25,7 @@ async def test_plan_research(mock_publish, mock_qdrant, mock_get_embeddings, moc
 
     assert result == {"plan": ["Subtopic A", "Subtopic B", "Subtopic C"]}
     mock_call_gemini.assert_called_once()
-
+ 
 @pytest.mark.asyncio
 @patch("app.services.research._call_gemini")
 @patch("app.services.research.publish_event")
